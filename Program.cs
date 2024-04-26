@@ -9,13 +9,13 @@ namespace Basketbal.Academy
     {
         static void Main(string[] args)
         {
-            var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+// Add services to the container.
 
             builder.Services.RegisterAuthendicationSettings();
-            builder.Services.AddControllers();
-            builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddScoped<ITokenService, JWTService>();
 
             builder.Services.AddSwaggerGen(options =>
@@ -48,36 +48,36 @@ namespace Basketbal.Academy
             builder.Services.AddHttpContextAccessor();
             builder.Services.RegisterDatabaseSettings();
             builder.Services.RegisterRepositories();
-            builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen();
 
-            builder.Services.AddCors(options =>
-            {
-                options.AddPolicy("AllowAnyOrigin",
-                    builder =>
-                    {
-                        builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
-                    });
-            });
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAnyOrigin",
+        builder =>
+        {
+            builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+        });
+});
 
-            var app = builder.Build();
+var app = builder.Build();
 
 
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
-            app.UseCors("AllowAnyOrigin");
+app.UseCors("AllowAnyOrigin");
 
-            app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 
-            app.UseAuthentication();
-            app.UseAuthorization();
+app.UseAuthentication();
+app.UseAuthorization();
 
-            app.MapControllers();
+app.MapControllers();
 
-            app.Run();
+app.Run();
 
         }
     }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
+
 namespace BasketballAcademy.Controllers
 {
     //[Authorize]
@@ -29,6 +30,7 @@ namespace BasketballAcademy.Controllers
         public async Task<IActionResult> ViewAdmin()
         {
                return ApiOkResponse(await _admin_repository.ViewAdmin());
+              
         }
 
         /// <summary>
@@ -42,7 +44,7 @@ namespace BasketballAcademy.Controllers
             string message = await _admin_repository.AddAdmin(admin);
             var result = new { messgae=message};
             return ApiOkResponse(result);
-         }
+                }
 
         /// <summary>
         /// Deletes an administrator by ID.
@@ -67,7 +69,7 @@ namespace BasketballAcademy.Controllers
                 string message = await _admin_repository.Message(contact);
                 var result = new { messgae = message };
                 return ApiOkResponse(result);
-            }
+        }
 
         /// <summary>
         /// Retrieves a list of feedback messages.
@@ -76,7 +78,7 @@ namespace BasketballAcademy.Controllers
         [HttpGet]
         [Route("ViewMessage")]
         public async Task<IActionResult> ViewMessage()
-        {
+            {
               return ApiOkResponse(await _admin_repository.ViewMessage());
         }
 
@@ -88,7 +90,7 @@ namespace BasketballAcademy.Controllers
 
         [HttpDelete("DeleteMessage")]
         public async Task<IActionResult> DeleteMessage(int id)
-        {
+            {
             return ApiOkResponse(await _admin_repository.DeleteMessage(id));
         }
     }

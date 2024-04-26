@@ -18,6 +18,7 @@ namespace BasketballAcademy.Repository
    
         public AdminRepository(string connectionStrings) : base(connectionStrings)
         {
+            this.Configuration = configuration;
         }
 
         /// <summary>
@@ -32,13 +33,13 @@ namespace BasketballAcademy.Repository
             outputParameter.Direction = ParameterDirection.Output;
 
             await ExecuteSP("[dbo].[sp_AddAdmin]", (SqlParameterCollection parameters) =>
-            {
+                {
                 parameters.AddWithValue("@fullName", admin.fullName);
                 parameters.AddWithValue("@email", admin.email);
                 parameters.AddWithValue("@username", admin.username);
                 parameters.AddWithValue("@password", Encrypt(admin.password));
                 parameters.Add(outputParameter);
-
+            
             });
 
             message = outputParameter.Value.ToString();
@@ -57,7 +58,7 @@ namespace BasketballAcademy.Repository
                 {
                    parameters.AddWithValue("@role", 0);
                 }, dataMapper);
-
+            
                 var admins = dataMapper.Data;
                 return admins;
         }
@@ -72,10 +73,10 @@ namespace BasketballAcademy.Repository
         public async Task<string> DeleteAdmin(int id)
         {
             await ExecuteSP("sp_removeAdmin", (SqlParameterCollection parameters) =>
-            {
+                {
                 parameters.AddWithValue("@ID", id);
             });
-
+            
             return "Deleted";
         }
 
@@ -87,9 +88,9 @@ namespace BasketballAcademy.Repository
         ///// <param name="contact">The Contact object representing the message.</param>
         ///// <returns>True if the message is saved successfully.</returns>
         public async Task<string> Message(Contact contact)
-        {
+                        {
             await ExecuteSP("[dbo].[sp_EnterMessage]", (SqlParameterCollection parameters) =>
-            {
+                {
                 parameters.AddWithValue("@Name", contact.Name);
                 parameters.AddWithValue("@Email", contact.Email);
                 parameters.AddWithValue("@Phone", contact.Phone);
@@ -98,8 +99,8 @@ namespace BasketballAcademy.Repository
             });
 
             return "message sent successfully";
-        }
-
+                }
+            
             //        try
             //        {
             //            OpenConnection();
@@ -126,15 +127,15 @@ namespace BasketballAcademy.Repository
             ///// </summary>
             ///// <returns>List of Contact objects representing all messages.</returns>
             public async Task<IEnumerable<Contact>> ViewMessage()
-        {
+                                {
             var dataMapper = new CollectionDataMapper<Contact>();
             await ExecuteSP("[dbo].[sp_ViewMessage]", (SqlParameterCollection parameters) =>
-            {
+                {
             }, dataMapper);
             var messages = dataMapper.Data;
             return messages;
-        }
-
+                }
+            
 
 
         ///// <summary>
@@ -143,9 +144,9 @@ namespace BasketballAcademy.Repository
         ///// <param name="id">The ID of the message to be deleted.</param>
         ///// <returns>The number of rows affected (should be 1 if deletion is successful).</returns>
         public async Task<string> DeleteMessage(int id)
-        {
+                    {
           await ExecuteSP("sp_DeleteMessage", (SqlParameterCollection parameters) =>
-            {
+                {
                 parameters.AddWithValue("ID", id);
             });
             return "Message Deleted";

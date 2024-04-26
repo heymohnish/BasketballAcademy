@@ -9,6 +9,9 @@ namespace BasketballAcademy.Model
 {
     public class Admin : IMapper
     {
+        /// <summary>
+        /// 
+        /// </summary>
         [Display(Name = " ID")]
         public int Id { get; set; }
 
