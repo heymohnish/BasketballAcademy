@@ -1,4 +1,5 @@
-﻿using BasketballAcademy.Model;
+﻿using BasketballAcademy.Controllers.Base;
+using BasketballAcademy.Model;
 using BasketballAcademy.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,16 +8,17 @@ using System;
 
 namespace BasketballAcademy.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UserController : RepositoryApiControllerBase<UserRepository>
     {
-        private readonly UserRepository Repository;
-
-        public UserController(IConfiguration configuration)
+        private readonly UserRepository _user_repository;
+        private readonly IConfiguration _configuration;
+        public UserController(IConfiguration configuration,UserRepository userRepository):base(userRepository)
         {
-            Repository = new UserRepository(configuration);
+            _user_repository = userRepository;
+            _configuration = configuration;
         }
 
         /// <summary>
