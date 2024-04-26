@@ -7,6 +7,7 @@ using BasketballAcademy.Repository.Base;
 using BasketballAcademy.Repository.Interface;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection.Metadata;
+using BasketballAcademy.Services;
 
 namespace BasketballAcademy.Repository
 {
@@ -14,6 +15,7 @@ namespace BasketballAcademy.Repository
     //{
     public class AdminRepository : RepositoryBase
     {
+   
         public AdminRepository(string connectionStrings) : base(connectionStrings)
         {
         }
