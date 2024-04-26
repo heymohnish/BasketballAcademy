@@ -11,14 +11,12 @@ using BasketballAcademy.Services;
 
 namespace BasketballAcademy.Repository
 {
-    //public class AdminRepository:Connection
-    //{
     public class AdminRepository : RepositoryBase
     {
    
         public AdminRepository(string connectionStrings) : base(connectionStrings)
         {
-            this.Configuration = configuration;
+            
         }
 
         /// <summary>
@@ -56,7 +54,6 @@ namespace BasketballAcademy.Repository
                 var dataMapper = new CollectionDataMapper<Admin>();
                 await ExecuteSP("[dbo].[sp_viewAdmin]", (SqlParameterCollection parameters) =>
                 {
-                   parameters.AddWithValue("@role", 0);
                 }, dataMapper);
             
                 var admins = dataMapper.Data;
