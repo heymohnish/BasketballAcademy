@@ -30,91 +30,48 @@ namespace BasketballAcademy.Controllers
         /// </summary>
         /// <param name="admin">Admin object containing coach information.</param>
         /// <returns>"ok" if coach added successfully, "error" if an error occurs, "Something went wrong" if an exception occurs.</returns>
-        //[HttpPost("AddCoach")]
-        //public async Task<IActionResult> AddCoach(Admin admin)
-        //{
-        //    var result=await _coachRepository.RegisterCoach(admin);
-        //    return ApiOkResponse(result);
+        [HttpPost("AddCoach")]
+        public async Task<IActionResult> AddCoach(Admin admin)
+        {
+            var result = await _coachRepository.RegisterCoach(admin);
+            return ApiOkResponse(result);
 
-        //}
+        }
 
         ///// <summary>
         ///// Retrieves a list of all coaches.
         ///// </summary>
         ///// <returns>List of Coach objects representing coaches.</returns>
-        //[HttpGet]
-        //[Route("ViewCoach")]
-        //public List<Coach> ViewCoach()
-        //{
-        //    try
-        //    {
-        //        List<Coach> Coach = Repository.ViewCoach();
-        //        return Coach;
-        //    }
-        //    catch (Exception exception)
-        //    {
-        //        logger.LogError(exception);
-        //        return new List<Coach>();
-        //    }
-        //}
+        [HttpGet("ViewCoach")]
+        public async Task<IActionResult> ViewCoach()
+        {
+            return ApiOkResponse(await _coachRepository.ViewCoach());
+        }
 
-        ///// <summary>
-        ///// Updates coach information.
-        ///// </summary>
-        ///// <param name="coach">Coach object containing updated information.</param>
-        ///// <param name="id">ID of the coach.</param>
-        ///// <returns>1 if updated successfully, 0 if an error occurs, -1 if an exception occurs.</returns>
-        //[HttpPut]
-        //[Route("UpdateCoach/{id}")]
-        //public int UpdateCoach(Coach coach, int id)
-        //{
-        //    try
-        //    {
-        //        name = coach.FullName;
-        //        logger.LogInfo(name + " updated their profile", name);
-        //        bool result = Repository.UpdateCoach(coach, id);
-        //        if (result)
-        //        {
-        //            return 1; // Update successful.
-        //        }
-        //        else
-        //        {
-        //            return 0; // Update error.
-        //        }
-        //    }
-        //    catch (Exception exception)
-        //    {
-        //        logger.LogError(exception);
-        //        return -1;
-        //    }
-        //}
+        /// <summary>
+        /// Updates coach information.
+        /// </summary>
+        /// <param name="coach">Coach object containing updated information.</param>
+        /// <param name="id">ID of the coach.</param>
+        /// <returns>1 if updated successfully, 0 if an error occurs, -1 if an exception occurs.</returns>
+        [HttpPut("UpdateCoach")]
+        public async Task<IActionResult> UpdateCoach(Coach coach)
+        {
+            var result = await _coachRepository.UpdateCoach(coach);
+            return ApiOkResponse(result);
+        }
 
-        ///// <summary>
-        ///// Deletes a coach by ID.
-        ///// </summary>
-        ///// <param name="Id">ID of the coach to be deleted.</param>
-        ///// <returns>True if coach deleted, false if an error occurs.</returns>
-        //[HttpDelete]
-        //[Route("DeleteCoach/id")]
-        //public bool Delete(int Id)
-        //{
-        //    try
-        //    {
-        //        int result = Repository.DeleteCoach(Id);
-        //        if (result == 1)
-        //        {
-        //            return true; // Coach deleted successfully.
-        //        }
-        //        else
-        //        {
-        //            return false; // Error deleting coach.
-        //        }
-        //    }
-        //    catch (Exception exception)
-        //    {
-        //        logger.LogError(exception);
-        //        return false; 
-        //    }
-        //}
+        /// <summary>
+        /// Deletes a coach by ID.
+        /// </summary>
+        /// <param name="Id">ID of the coach to be deleted.</param>
+        /// <returns>True if coach deleted, false if an error occurs.</returns>
+        [HttpDelete("DeleteCoach")]
+        public async Task<IActionResult> Delete(int Id)
+        {
+            var result = await _coachRepository.DeleteCoach(Id);
+            return ApiOkResponse(result);
+        }
+         
     }
 }

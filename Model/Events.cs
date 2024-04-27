@@ -1,8 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using BasketballAcademy.Extensions;
+using BasketballAcademy.Repository.Interface;
+using System.ComponentModel.DataAnnotations;
+using System.Data;
 
 namespace BasketballAcademy.Model
 {
-    public class Events
+
+    public class Events:IMapper
     {
         [Display(Name = "Event ID")]
         public int EventID { get; set; }
@@ -17,6 +21,7 @@ namespace BasketballAcademy.Model
         [DataType(DataType.Time)]
         [Display(Name = "Time")]
         public string EventTime { get; set; }
+
         public string Venue { get; set; }
         public string Details { get; set; }
 
@@ -32,5 +37,21 @@ namespace BasketballAcademy.Model
         public string PrizeDetails { get; set; }
         public string Contact { get; set; }
 
+        public void Map(IDataReader reader)
+        {
+
+            EventID = reader.GetValue<int>("EventID");
+            EventName = reader.GetValue<string>("EventName");
+            EventDate = reader.GetValue<DateTime>("EventDate");
+            EventTime = reader.GetValue<string>("EventTime");
+            Venue = reader.GetValue<string>("Venue");
+            Details = reader.GetValue<string>("Details");
+            AgeGroup = reader.GetValue<string>("AgeGroup");
+            Incharge = reader.GetValue<string>("Incharge");
+            EventImage = reader.GetValue<byte[]>("EventImage");
+            PrizeDetails = reader.GetValue<string>("PrizeDetails");
+            Contact = reader.GetValue<string>("Contact");
+        }
     }
+
 }
