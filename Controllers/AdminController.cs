@@ -1,4 +1,4 @@
-﻿using BasketballAcademy.Controllers.Base;
+﻿ using BasketballAcademy.Controllers.Base;
 using BasketballAcademy.Model;
 using BasketballAcademy.Repository;
 using Microsoft.AspNetCore.Authorization;
@@ -8,7 +8,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace BasketballAcademy.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class AdminController : RepositoryApiControllerBase<AdminRepository>
@@ -30,7 +30,6 @@ namespace BasketballAcademy.Controllers
         public async Task<IActionResult> ViewAdmin()
         {
                return ApiOkResponse(await _admin_repository.ViewAdmin());
-              
         }
 
         /// <summary>
@@ -44,7 +43,7 @@ namespace BasketballAcademy.Controllers
             string message = await _admin_repository.AddAdmin(admin);
             var result = new { messgae=message};
             return ApiOkResponse(result);
-                }
+        }
 
         /// <summary>
         /// Deletes an administrator by ID.

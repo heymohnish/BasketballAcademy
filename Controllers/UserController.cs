@@ -8,7 +8,7 @@ using System;
 
 namespace BasketballAcademy.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : RepositoryApiControllerBase<UserRepository>

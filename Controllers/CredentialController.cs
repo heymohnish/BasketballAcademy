@@ -9,18 +9,21 @@ using Microsoft.Identity.Client.Platforms.Features.DesktopOs.Kerberos;
 using System.Security.Claims;
 using System.Text.Json;
 using Serilog.Core;
+using BasketballAcademy.Controllers.Base;
 
 namespace BasketballAcademy.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CredentialController : ControllerBase
+    public class CredentialController : RepositoryApiControllerBase<CredentialsRepository>
     {
-        private readonly CredentialsRepository Repository;
+        private readonly CredentialsRepository _credentialsRepository;
+        private readonly IConfiguration _configuration;
 
-        public CredentialController(IConfiguration configuration)
+        public CredentialController(IConfiguration configuration,CredentialsRepository credentialsRepository):base(credentialsRepository)
         {
-            Repository = new CredentialsRepository(configuration);
+            _credentialsRepository= credentialsRepository;
+                _configuration= configuration;
         }
 
         /// <summary>
@@ -28,76 +31,38 @@ namespace BasketballAcademy.Controllers
         /// </summary>
         /// <param name="credentials">Credentials object containing user login information.</param>
         /// <returns>Action result with user role, name, and ID if sign-in is successful; otherwise, returns an error message.</returns>
-        [HttpPost]
-        [Route("signin")]
-        public ActionResult Signin(Credentials credentials)
+        [HttpPost("signin")]
+        public async Task<IActionResult> Signin(Credentials credentials)
         {
-            try
+            var result = await _credentialsRepository.Signin(credentials); 
+            if(result!=null)
             {
-                bool temp = Repository.Signin(credentials, out int result, out int id, out string name, out string email);
+                return ApiOkResponse(result);
+            }
+            else
+            { 
+                return StatusCode(404, new { statusCode = 404, message = "User not found", data = new { }, error = "User not found" });
+             }
+    }
 
-                if (temp)
-                {
-                    if (result == 0)
-                    {
-                        logger.LogInfo("Signed in: {Username}", name);
-                        return Ok(new { Role = "Admin", name, id });
-                    }
-                    else if (result == 2)
-                    {
-                        logger.LogInfo("Signed in: {Username}", name);
-                        return Ok(new { Role = "Coach", name, id, email });
-                    }
-                    else if (result == 3)
-                    {
-                        logger.LogInfo("Signed in: {Username}", name);
-                        return Ok(new { Role = "Player", name, id, email });
-                    }
-                    else
-                    {
-                        logger.LogInfo("Signed in: {Username}", name);
-                        return Ok(new { Role = "Unknown", name, id });
-                    }
-                }
-                else
-                {
-                    return Ok(new { Role = "Unknown", name, id });
-                }
-            }
-            catch (Exception exception)
-            {
-                logger.LogError(exception);
-                return BadRequest("An error occurred during signin");
-            }
-        }
 
         /// <summary>
         /// Handles the password change request.
         /// </summary>
         /// <param name="forget">Forget object containing user information for password change.</param>
         /// <returns>1 if password changed successfully, 0 if an error occurs.</returns>
-        [HttpPost]
-        [Route("ChangePassword")]
-        public int ForgotPassword(Forget forget)
+        [HttpPost("ChangePassword")]
+        public async Task<IActionResult> ForgotPassword(Forget forget)
         {
-            try
+            var result = await _credentialsRepository.Forgot(forget);
+            if (result != null)
             {
-                if (Repository.Forgot(forget))
-                {
-                    string name = forget.Username;
-                    logger.LogInfo("Password changed for user: " + name, name);
-                    return 1; 
-                }
-                else
-                {
-                    return 0; 
-                }
+                return ApiOkResponse(result);
             }
-            catch (Exception exception)
+            else
             {
-                logger.LogError(exception);
-                return 0; 
+                return StatusCode(404, new { statusCode = 404, message = "Invalid user", data = new { }, error = "Invalid user" });
             }
         }
-    }
+        }
 }

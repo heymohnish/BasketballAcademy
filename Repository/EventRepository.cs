@@ -1,18 +1,20 @@
 ﻿using BasketballAcademy.Model;
+using BasketballAcademy.Repository.Base;
 using Microsoft.AspNetCore.Mvc.Diagnostics; 
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Data;
+using BasketballAcademy.Repository.Interface;
+using System.Runtime.InteropServices;
 
 namespace BasketballAcademy.Repository
 {
-    public class EventRepository:Connection
+    public class EventRepository:RepositoryBase
     {
-        protected readonly IConfiguration Configuration;
-        public EventRepository(IConfiguration configuration) : base(configuration)
+        public EventRepository(string connectionStrings) : base(connectionStrings)
         {
-            this.Configuration = configuration;
+
         }
 
         /// <summary>
@@ -20,33 +22,32 @@ namespace BasketballAcademy.Repository
         /// </summary>
         /// <param name="events">The event object containing information about the event.</param>
         /// <returns>True if the event is added successfully, otherwise false.</returns>
-        public bool AddEvents(Events events)
+        public async Task<string> AddEvents(Events events)
         {
-                try
-                {
-                OpenConnection();
-                using (SqlCommand cmd = new SqlCommand("sp_addEvent", SqlConnection))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@EventName", events.EventName);
-                        cmd.Parameters.AddWithValue("@EventDate", events.EventDate);
-                        cmd.Parameters.AddWithValue("@EventTime", events.EventTime);
-                        cmd.Parameters.AddWithValue("@Venue", events.Venue);
-                        cmd.Parameters.AddWithValue("@Details", events.Details);
-                        cmd.Parameters.AddWithValue("@Incharge", events.Incharge);
-                        cmd.Parameters.AddWithValue("@AgeGroup", events.AgeGroup);
-                        cmd.Parameters.AddWithValue("@Contact", events.Contact);
-                        cmd.Parameters.AddWithValue("@EventImage", events.EventImage);
-                        cmd.Parameters.AddWithValue("@PrizeDetails", events.PrizeDetails);
-                        int rowsAffected = cmd.ExecuteNonQuery();
-                        return true;
-                    }
-                }
-                finally
-                {
-                CloseConnection();
-            }
+            string message = null;
+            SqlParameter outputParameter = new SqlParameter("@message", SqlDbType.NVarChar, 1000);
+            outputParameter.Direction = ParameterDirection.Output;
+
+
+            await ExecuteSP("[dbo].[sp_addEvent]", (SqlParameterCollection parameters) =>
+            {
+                parameters.AddWithValue("@EventName", events.EventName);
+                parameters.AddWithValue("@EventDate", events.EventDate);
+                parameters.AddWithValue("@EventTime", events.EventTime);
+                parameters.AddWithValue("@Venue", events.Venue);
+                parameters.AddWithValue("@Details", events.Details);
+                parameters.AddWithValue("@Incharge", events.Incharge);
+                parameters.AddWithValue("@AgeGroup", events.AgeGroup);
+                parameters.AddWithValue("@Contact", events.Contact);
+                parameters.AddWithValue("@EventImage", events.EventImage);
+                parameters.AddWithValue("@PrizeDetails", events.PrizeDetails);
+                parameters.Add(outputParameter);
+            });
+            message = outputParameter.Value.ToString();
+            return message;
+
         }
+
 
         /// <summary>
         /// Edits an existing event in the database.
@@ -54,100 +55,67 @@ namespace BasketballAcademy.Repository
         /// <param name="events">The event object containing updated information.</param>
         /// <param name="evenID">The ID of the event to be edited.</param>
         /// <returns>True if the event is edited successfully, otherwise false.</returns>
-        public bool EditEvents(Events events, int evenID)
+        public async Task<string> EditEvents(Events events)
         {
-                try
-                {
-                OpenConnection();
-                using (SqlCommand cmd = new SqlCommand("sp_editEvent", SqlConnection))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@EventID", evenID);
-                        cmd.Parameters.AddWithValue("@EventName", events.EventName);
-                        cmd.Parameters.AddWithValue("@EventDate", events.EventDate);
-                        cmd.Parameters.AddWithValue("@EventTime", events.EventTime);
-                        cmd.Parameters.AddWithValue("@Venue", events.Venue);
-                        cmd.Parameters.AddWithValue("@Details", events.Details);
-                        cmd.Parameters.AddWithValue("@Incharge", events.Incharge);
-                        cmd.Parameters.AddWithValue("@AgeGroup", events.AgeGroup);
-                        cmd.Parameters.AddWithValue("@Contact", events.Contact);
-                        cmd.Parameters.AddWithValue("@EventImage", events.EventImage);
-                        cmd.Parameters.AddWithValue("@PrizeDetails", events.PrizeDetails);
-                        int rowsAffected = cmd.ExecuteNonQuery();
-                        return true;
-                    }
-                }
-                finally
-                {
-                CloseConnection();
-            }
+            string message = null;
+            SqlParameter outputParameter = new SqlParameter("@message", SqlDbType.NVarChar, 1000);
+            outputParameter.Direction = ParameterDirection.Output;
+
+
+            await ExecuteSP("[dbo].[sp_editEvent]", (SqlParameterCollection parameters) =>
+            {
+                parameters.AddWithValue("@EventID", events.EventID);
+                parameters.AddWithValue("@EventName", events.EventName);
+                parameters.AddWithValue("@EventDate", events.EventDate);
+                parameters.AddWithValue("@EventTime", events.EventTime);
+                parameters.AddWithValue("@Venue", events.Venue);
+                parameters.AddWithValue("@Details", events.Details);
+                parameters.AddWithValue("@Incharge", events.Incharge);
+                parameters.AddWithValue("@AgeGroup", events.AgeGroup);
+                parameters.AddWithValue("@Contact", events.Contact);
+                parameters.AddWithValue("@EventImage", events.EventImage);
+                parameters.AddWithValue("@PrizeDetails", events.PrizeDetails);
+                parameters.Add(outputParameter);
+            });
+            message = outputParameter.Value.ToString();
+            return message;
         }
+
 
         /// <summary>
         /// Deletes an event from the database based on its ID.
         /// </summary>
         /// <param name="Id">The ID of the event to be deleted.</param>
         /// <returns>The number of rows affected (should be 1 if deletion is successful).</returns>
-        public int DeleteEvent(int Id)
+        public async Task<string> DeleteEvent(int Id)
         {
-                try
-                {
-                OpenConnection();
-                using (SqlCommand cmd = new SqlCommand("sp_removeEvent", SqlConnection))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@EventID", Id);
-                        int i = cmd.ExecuteNonQuery();
-                        return i;
-                    }
-                }
-                finally
-                {
-                CloseConnection();
-            }
-        }
+            string message = null;
+            SqlParameter outputParameter = new SqlParameter("@message", SqlDbType.NVarChar, 1000);
+            outputParameter.Direction = ParameterDirection.Output;
 
-        /// <summary>
-        /// Retrieves a list of events from the database.
-        /// </summary>
-        /// <returns>A list of event objects.</returns>
-        public List<Events> ViewEvents()
+
+            await ExecuteSP("[dbo].[sp_removeEvent]", (SqlParameterCollection parameters) =>
+            {
+                parameters.AddWithValue("@EventID",Id);
+                parameters.Add(outputParameter);
+            });
+            message = outputParameter.Value.ToString();
+            return message;
+        }
+           
+
+            /// <summary>
+            /// Retrieves a list of events from the database.
+            /// </summary>
+            /// <returns>A list of event objects.</returns>
+            public async Task<IEnumerable<Events>> ViewEvents()
         {
-                try
-                {
-                OpenConnection();
-                using (SqlCommand cmd = new SqlCommand("sp_viewEvent", SqlConnection))
-                    {
-                        List<Events> eventlist = new List<Events>();
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        using (SqlDataReader reader = cmd.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                eventlist.Add(
-                                    new Events
-                                    {
-                                        EventID = Convert.ToInt32(reader["EventID"]),
-                                        EventName = Convert.ToString(reader["EventName"]),
-                                        EventDate = (DateTime)reader["EventDate"],
-                                        EventTime = Convert.ToString(reader["EventTime"]),
-                                        Incharge = Convert.ToString(reader["Incharge"]),
-                                        Venue = Convert.ToString(reader["Venue"]),
-                                        Details = Convert.ToString(reader["Details"]),
-                                        AgeGroup = Convert.ToString(reader["AgeGroup"]),
-                                        EventImage = (byte[])reader["EventImage"],
-                                        PrizeDetails = Convert.ToString(reader["PrizeDetails"]),
-                                        Contact = Convert.ToString(reader["Contact"]),
-                                    });
-                            }
-                        }
-                        return eventlist;
-                    }
-                }
-                finally
-                {
-                CloseConnection();
-            }
+            var dataMapper = new CollectionDataMapper<Events>();
+            await ExecuteSP("sp_viewEvent", (SqlParameterCollection parameter) =>
+            {
+            },dataMapper);
+            var events = dataMapper.Data;
+            return events;
         }
 
         /// <summary>
@@ -155,205 +123,83 @@ namespace BasketballAcademy.Repository
         /// </summary>
         /// <param name="eventID">The ID of the event to retrieve.</param>
         /// <returns>A list containing information about the specified event.</returns>
-        public List<Events> EventByID(int eventID)
+        public async Task<Events> EventByID(int eventID)
         {
-            List<Events> eventlist = new List<Events>();
-                try
-                {
-                OpenConnection();
-                using (SqlCommand cmd = new SqlCommand("sp_viewEventbyId", SqlConnection))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@EventID", eventID);
-                        using (SqlDataReader reader = cmd.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                eventlist.Add(
-                                    new Events
-                                    {
-                                        EventID = Convert.ToInt32(reader["EventID"]),
-                                        EventName = Convert.ToString(reader["EventName"]),
-                                        EventDate = (DateTime)reader["EventDate"],
-                                        EventTime = Convert.ToString(reader["EventTime"]),
-                                        Incharge = Convert.ToString(reader["Incharge"]),
-                                        Venue = Convert.ToString(reader["Venue"]),
-                                        Details = Convert.ToString(reader["Details"]),
-                                        AgeGroup = Convert.ToString(reader["AgeGroup"]),
-                                        EventImage = (byte[])reader["EventImage"],
-                                        PrizeDetails = Convert.ToString(reader["PrizeDetails"]),
-                                        Contact = Convert.ToString(reader["Contact"]),
-                                    });
-                            }
-                        }
-                        return eventlist;
-                    }
-                }
-                finally
-                {
-                CloseConnection();
-            }
+            var dataMapper=new IDataMapper<Events>();
+            await ExecuteSP("sp_viewEventbyId",async parameter =>
+            {
+                parameter.AddWithValue("@EventID", eventID);
+            },dataMapper);
+            return dataMapper.Data;
         }
+
 
         /// <summary>
         /// Retrieves registration data for a specific event based on its ID.
         /// </summary>
         /// <param name="id">The ID of the event for which registration data is requested.</param>
         /// <returns>A list containing registration information for the specified event.</returns>
-        public List<Registeration> GetRegistrationData(int id)
+        public async Task<List<Coach>> GetRegistrationData(int id)
         {
-            List<Registeration> registerlist = new List<Registeration>();
-                try
-                {
-                    OpenConnection();
-                    using (SqlCommand cmd = new SqlCommand("sp_ViewRegistration", SqlConnection))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@EventID", id);
-                        using (SqlDataReader reader = cmd.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                registerlist.Add(new Registeration
-                                {
-                                    Name = Convert.ToString(reader["fullName"])
-                                });
-                            }
-                        }
-                    }
-                }
-                finally
-                {
-                    CloseConnection();
-                }
-            return registerlist;
+            var dataMapper=new CollectionDataMapper<Coach>();
+            await ExecuteSP("sp_ViewRegistration", async parameter =>
+            {
+                parameter.AddWithValue("@EventID", id);
+            }, dataMapper);
+            return dataMapper.Data;
+        }
+ 
+
+            /// <summary>
+            /// Registers a coach for a specific event.
+            /// </summary>
+            /// <param name="eventId">The ID of the event to register for.</param>
+            /// <param name="coachId">The ID of the coach to register.</param>
+            /// <returns>True if registration is successful, otherwise false.</returns>
+            public async Task<string> RegisterEvent(RegisterEvent registerEvent)
+        {
+            string message = null;
+            SqlParameter outputParameter = new SqlParameter("@message", SqlDbType.NVarChar, 1000);
+            outputParameter.Direction = ParameterDirection.Output;
+
+            await ExecuteSP("[dbo].[sp_EventReg]", (SqlParameterCollection parameters) =>
+            {
+                parameters.AddWithValue("@EventID", registerEvent.EventID);
+                parameters.AddWithValue("@CoachID", registerEvent.CoachID);
+                parameters.Add(outputParameter);
+            });
+            message = outputParameter.Value.ToString();
+            return message;
         }
 
-        /// <summary>
-        /// Registers a coach for a specific event.
-        /// </summary>
-        /// <param name="eventId">The ID of the event to register for.</param>
-        /// <param name="coachId">The ID of the coach to register.</param>
-        /// <returns>True if registration is successful, otherwise false.</returns>
-        public bool RegisterEvent(int eventId, int coachId)
-        {
-                try
-                {
-                    OpenConnection();
-                    using (SqlCommand cmd = new SqlCommand("sp_EventCheckRegistration", SqlConnection))
-                        {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@EventID", eventId);
-                        cmd.Parameters.AddWithValue("@CoachID", coachId);
-                        int existingRegistrations = (int)cmd.ExecuteScalar();
-                        if (existingRegistrations > 0)
-                        {
-                            return false;
-                        }
-                        cmd.CommandText = "sp_EventReg";
-                        int rowsAffected = cmd.ExecuteNonQuery();
-                        return true;
-                    }
-                }
-                finally
-                {
-                CloseConnection();
-            }
-        }
 
         /// <summary>
         /// Retrieves a list of events associated with a specific coach based on their ID.
         /// </summary>
         /// <param name="coachId">The ID of the coach.</param>
         /// <returns>A list of event objects associated with the specified coach.</returns>
-        public List<Events> GetEventsByCoachId(int coachId)
+        public async Task<List<Events>> GetEventsByCoachId(int coachId)
         {
-            List<Events> eventlist = new List<Events>();
-                try
-                {
-                    OpenConnection();
-                    using (SqlCommand cmd = new SqlCommand("sp_GetEventIdByCoachID", SqlConnection))
-                        {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@CoachID", coachId);
-                        List<int> eventIds = new List<int>();
-                        using (SqlDataReader reader = cmd.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                int eventId = Convert.ToInt32(reader["EventID"]);
-                                eventIds.Add(eventId);
-                            }
-                        }
-                        using (SqlCommand eventCmd = new SqlCommand("sp_GetEventByEventID", SqlConnection))
-                        {
-                            eventCmd.CommandType = CommandType.StoredProcedure;
-                            foreach (int eventId in eventIds)
-                            {
-                                eventCmd.Parameters.Clear();
-                                eventCmd.Parameters.AddWithValue("@EventID", eventId);
-                                using (SqlDataReader reader = eventCmd.ExecuteReader())
-                                {
-                                    while (reader.Read())
-                                    {
-                                        eventlist.Add(new Events
-                                        {
-                                            EventID = Convert.ToInt32(reader["EventID"]),
-                                            EventName = Convert.ToString(reader["EventName"]),
-                                            EventDate = (DateTime)reader["EventDate"],
-                                            EventTime = Convert.ToString(reader["EventTime"]),
-                                            Incharge = Convert.ToString(reader["Incharge"]),
-                                            Venue = Convert.ToString(reader["Venue"]),
-                                            Details = Convert.ToString(reader["Details"]),
-                                            AgeGroup = Convert.ToString(reader["AgeGroup"]),
-                                            EventImage = (byte[])reader["EventImage"],
-                                            PrizeDetails = Convert.ToString(reader["PrizeDetails"]),
-                                            Contact = Convert.ToString(reader["Contact"]),
-                                        });
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                finally
-                {
-                CloseConnection();
-            }
-                return eventlist;
+            var dataMapper= new CollectionDataMapper<Events>();
+            await ExecuteSP("[sp_GetEventIdByCoachID]", async parameter =>
+            {
+                parameter.AddWithValue("CoachID", coachId);
+            }, dataMapper);
+            return dataMapper.Data; 
         }
+
 
         /// <summary>
         /// Retrieves a list of coaches from the database.
         /// </summary>
         /// <returns>A list of Registeration objects containing coach names.</returns>
-        public List<Registeration> ListIncharge()
+        public async Task<List<Registeration>> ListIncharge()
         {
-            List<Registeration> registerlist = new List<Registeration>();
-                try
-                {
-                    OpenConnection();
-                    using (SqlCommand cmd = new SqlCommand("sp_ChooseCoach", SqlConnection))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        using (SqlDataReader reader = cmd.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                registerlist.Add(new Registeration
-                                {
-                                    Name = Convert.ToString(reader["fullName"])
-                                });
-                            }
-                        }
-                    }
-                }
-                finally
-                {
-                    CloseConnection();
-                }
-            
-            return registerlist;
+            var dataMapper=new CollectionDataMapper<Registeration>();
+            await ExecuteSP("sp_ChooseCoach", async p =>
+            {
+            }, dataMapper);
+            return dataMapper.Data;
         }
-    }
+        }
 }

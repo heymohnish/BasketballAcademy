@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BasketballAcademy.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CoachController : RepositoryApiControllerBase<CoachRepository>

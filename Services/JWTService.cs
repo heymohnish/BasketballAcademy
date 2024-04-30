@@ -4,8 +4,7 @@ using BasketballAcademy.Repository;
 using BasketballAcademy.Services.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 using System.Data;
-//using System.Data.SqlClient;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -24,9 +23,6 @@ namespace BasketballAcademy.Services
             _configuration = configuration;
         }
 
-        //public JWTService(IConfiguration configuration)
-        //{
-        //}
         public string EncryptToCiberText(string plainText)
         {
             string passPhrase = Convert.ToString(_configuration["Key:PassPhrase"]);

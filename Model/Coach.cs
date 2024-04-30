@@ -52,7 +52,6 @@ namespace BasketballAcademy.Model
 
             if (reader.FieldCount > 0)
             {
-
                 DateOfBirth = reader.GetValue<DateTime>("DateOfBirth");
                 Id = reader.GetValue<int>("ID");
                 Age = reader.GetValue<int>("age");
@@ -60,7 +59,7 @@ namespace BasketballAcademy.Model
                 Gender = reader.GetValue<string>("Gender");
                 PrimarySkill = reader.GetValue<string>("PrimarySkill");
                 Address = reader.GetValue<string>("Address");
-                PhoneNumber = reader.GetValue<string>("PhoneNumber");
+                PhoneNumber = reader.GetValue<string>("phone");
                 Email = reader.GetValue<string>("Email");
                 Experience = reader.GetValue<int>("Experience");
                 photo = reader.GetValue<byte[]>("Photo");
