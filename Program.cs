@@ -11,11 +11,10 @@ namespace Basketbal.Academy
         {
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 
             builder.Services.RegisterAuthendicationSettings();
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddControllers();
+            builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddScoped<ITokenService, JWTService>();
 
             builder.Services.AddSwaggerGen(options =>

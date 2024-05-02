@@ -8,7 +8,7 @@ using System.Security.Cryptography.Xml;
 
 namespace BasketballAcademy.Repository
 {
-    public class AdmissionRepository:RepositoryBase
+    public class AdmissionRepository : RepositoryBase
     {
 
         public AdmissionRepository(string connectionStrings) : base(connectionStrings)
@@ -16,16 +16,7 @@ namespace BasketballAcademy.Repository
 
         }
 
-        /// <summary>
-        /// Processes the admission form for a player, checking for existing records, coach availability, and enrolling the player.
-        /// </summary>
-        /// <param name="admission">The Admission object containing player information.</param>
-        /// <returns>
-        /// -1 if the player with the same email already exists.
-        /// -2 if the selected coach is not available.
-        ///  0 if the enrollment fails for any other reason.
-        ///  1 if the player is successfully enrolled.
-        /// </returns>
+
         public async Task<string> AdmissionForm(Admission admission)
         {
             string message = null;
@@ -59,11 +50,6 @@ namespace BasketballAcademy.Repository
 
 
 
-        /// <summary>
-        /// Updates the profile information of a player in the database.
-        /// </summary>
-        /// <param name="admission">The Admission object containing updated profile information.</param>
-        /// <returns>True if the profile information was successfully updated; otherwise, false.</returns>
         public async Task<string> UpdateProfile(Player player)
         {
             string message = null;
@@ -90,10 +76,6 @@ namespace BasketballAcademy.Repository
         }
 
 
-        /// <summary>
-        /// Retrieves a list of player admission records from the database.
-        /// </summary>
-        /// <returns>A list of Admission objects representing player admission records.</returns>
         public async Task<List<Admission>> ViewPlayer()
         {
             var dataMapper = new CollectionDataMapper<Admission>();
@@ -107,10 +89,6 @@ namespace BasketballAcademy.Repository
 
 
 
-        /// <summary>
-        /// Retrieves a list of player profiles from the database.
-        /// </summary>
-        /// <returns>A list of Admission objects representing player profiles.</returns>
         public async Task<List<Admission>> ViewEnrolledPlayer()
         {
             var dataMapper = new CollectionDataMapper<Admission>();
@@ -123,12 +101,6 @@ namespace BasketballAcademy.Repository
         }
 
 
-        /// <summary>
-        /// Change the status of the admission player enrolled
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="status"></param>
-        /// <returns></returns>
         public async Task<string> UpdateState(AdmissionStatus admissionStatus)
         {
             string message = null;
@@ -146,11 +118,6 @@ namespace BasketballAcademy.Repository
         }
 
 
-        /// <summary>
-        /// Deletes a player from the database by their ID.
-        /// </summary>
-        /// <param name="Id">The ID of the player to delete.</param>
-        /// <returns>The number of rows affected by the deletion (usually 1 if successful).</returns>
         public async Task<string> DeletePlayer(int Id)
         {
             string message = null;
@@ -168,10 +135,6 @@ namespace BasketballAcademy.Repository
 
 
 
-        /// <summary>
-        /// Retrieves a list of coaches from the database.
-        /// </summary>
-        /// <returns>A list of Coach objects representing coaches.</returns>
         public async Task<List<CoachList>> CoachList()
         {
             var dataMapper = new CollectionDataMapper<CoachList>();
@@ -185,28 +148,18 @@ namespace BasketballAcademy.Repository
 
 
 
-        /// <summary>
-        /// Retrieves a list of players by coach name from the database.
-        /// </summary>
-        /// <param name="name">The name of the coach whose players are to be retrieved.</param>
-        /// <returns>A list of Admission objects representing players.</returns>
         public async Task<List<PlayerList>> PlayerList(string name)
         {
             var dataMapper = new CollectionDataMapper<PlayerList>();
             await ExecuteSP("sp_ListPlayers", (SqlParameterCollection parameter) =>
             {
                 parameter.AddWithValue("ChooseCoach", name);
-            },dataMapper);
+            }, dataMapper);
             var playerList = dataMapper.Data;
             return playerList;
         }
 
 
-        /// <summary>
-        /// Retrieves a list of events associated with a player from the database.
-        /// </summary>
-        /// <param name="playerId">The ID of the player.</param>
-        /// <returns>A list of Events objects representing events.</returns>
         public async Task<List<Events>> GetEventsByPlayer(int playerId)
         {
             var dataMapper = new CollectionDataMapper<Events>();
@@ -217,6 +170,6 @@ namespace BasketballAcademy.Repository
             var playerEvent = dataMapper.Data;
             return playerEvent;
         }
-           
-        }
+
+    }
 }

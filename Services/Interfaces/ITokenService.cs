@@ -14,7 +14,5 @@ namespace BasketballAcademy.Services.Interfaces
 
         public TokenResponseDto GetToken(IEnumerable<Claim> claim);
 
-        public void InsertRefreshToken(UserRefreshTokenRequest userRefreshTokenRequest);
-
     }
 }

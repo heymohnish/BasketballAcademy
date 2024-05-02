@@ -34,10 +34,6 @@ namespace BasketballAcademy.Repository
           return dataMapper.Data;
         }
 
-
-
-        //    try
-
         public async Task<string> Forgot(Forget forget)
         {
             string message = null;

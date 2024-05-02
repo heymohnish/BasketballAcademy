@@ -10,7 +10,7 @@ namespace BasketballAcademy.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class AdmissionController : RepositoryApiControllerBase<AdmissionRepository>
+    public class AdmissionController : RepositoryApiControllerBase<AdmissionRepository>,IAdmissionController
     {
         private readonly AdmissionRepository _admissionRepository;
         private readonly IConfiguration _configuration;
@@ -21,13 +21,7 @@ namespace BasketballAcademy.Controllers
             _configuration = configuration;
         }
 
-        string name;
 
-        /// <summary>
-        /// Enrolls a player in the academy.
-        /// </summary>
-        /// <param name="admission">Admission object containing player information.</param>
-        /// <returns>1 if enrolled successfully, 2 if already enrolled, 3 if coach not available, 0 if an error occurs.</returns>
         [HttpPost("EnrollPlayer")]
         public async Task<IActionResult> EnrollPlayer(Admission admission)
         {
@@ -37,11 +31,6 @@ namespace BasketballAcademy.Controllers
 
 
 
-        /// <summary>
-        /// Updates player information.
-        /// </summary>
-        /// <param name="player">Player object containing updated information.</param>
-        /// <returns>1 if updated successfully, 0 if an error occurs, -1 if an exception occurs.</returns>
         [HttpPut("UpdatePlayer")]
         public async Task<IActionResult> UpdatePlayer(Player player)
         {
@@ -49,33 +38,18 @@ namespace BasketballAcademy.Controllers
             return ApiOkResponse(result);
         }
 
-
-        ///// <summary>
-        ///// Retrieves a list of all players.
-        ///// </summary>
-        ///// <returns>List of Admission objects representing players.</returns>
-        [HttpGet("ViewPlayer")]
+         [HttpGet("ViewPlayer")]
         public async Task<IActionResult> ViewPlayer()
         {
             return ApiOkResponse(await _admissionRepository.ViewPlayer());
         }
 
-        /// <summary>
-        /// Retrieves a list of enrolled players.
-        /// </summary>
-        /// <returns>List of Admission objects representing enrolled players.</returns>
         [HttpGet("ViewEnrolledPlayer")]
         public async Task<IActionResult> ViewEnrolledPlayer()
         {
             return ApiOkResponse(await _admissionRepository.ViewEnrolledPlayer());
         }
 
-        /// <summary>
-        /// Updates the enrollment status of a player.
-        /// </summary>
-        /// <param name="itemId">ID of the player.</param>
-        /// <param name="status">New status code.</param>
-        /// <returns>1 if successful, 0 if an error occurs.</returns>
         [HttpPut("UpdateStatus")]
         public async Task<IActionResult> UpdateStatus(AdmissionStatus admission)
         {
@@ -84,12 +58,6 @@ namespace BasketballAcademy.Controllers
             return ApiOkResponse(result);
         }
 
-
-        /// <summary>
-        /// Deletes a player by ID.
-        /// </summary>
-        /// <param name="Id">ID of the player to be deleted.</param>
-        /// <returns>1 if player deleted, 0 if an error occurs.</returns>
         [HttpDelete("DeletePlayer")]
         public async Task<IActionResult> Delete(int Id)
         {
@@ -97,35 +65,19 @@ namespace BasketballAcademy.Controllers
             return ApiOkResponse(response);
         }
 
-        /// <summary>
-        /// Retrieves a list of all coaches.
-        /// </summary>
-        /// <returns>List of Coach objects representing coaches.</returns>
+
         [HttpGet("CoachList")]
         public async Task<IActionResult> CoachList()
         {
             return ApiOkResponse(await _admissionRepository.CoachList());
         }
 
-
-        /// <summary>
-        /// Retrieves a list of players associated with a coach.
-        /// </summary>
-        /// <param name="name">Name of the coach.</param>
-        /// <returns>List of Admission objects representing players.</returns>
-        [HttpGet]
-        [Route("PlayerList")]
+        [HttpGet("PlayerList")]
         public async Task<IActionResult> PlayerList(string name)
         {
             return ApiOkResponse(await _admissionRepository.PlayerList(name));
         }
 
-
-        /// <summary>
-        /// Retrieves a list of events associated with a player.
-        /// </summary>
-        /// <param name="id">ID of the player.</param>
-        /// <returns>List of Events objects representing events.</returns>
         [HttpGet("ViewPlayerEvent")]
         public async Task<IActionResult> ViewPlayerEvent(int id)
         {

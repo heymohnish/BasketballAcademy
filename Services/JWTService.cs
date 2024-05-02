@@ -84,7 +84,6 @@ namespace BasketballAcademy.Services
                 var issuer = _configuration["Jwt:Issuer"];
                 var audience = _configuration["Jwt:Audience"];
                 var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
-                //var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Subject = new ClaimsIdentity(new[]
@@ -294,33 +293,7 @@ namespace BasketballAcademy.Services
             return new TokenResponseDto { AccessToken = tokenString, Expiration = token.ValidTo };
         }
 
-        public void InsertRefreshToken(UserRefreshTokenRequest userRefreshTokenRequest)
-        {
-            try
-            {
-                String SqlconString = _configuration.GetConnectionString("DefaultConnection");
-                using (SqlConnection connection = new SqlConnection(SqlconString))
-                {
-                    connection.Open();
-
-                    using (SqlCommand command = new SqlCommand("CreateUpdateRefreshToken", connection))
-                    {
-                        command.CommandType = CommandType.StoredProcedure;
-                        command.Parameters.AddWithValue("@UserName", userRefreshTokenRequest.UserName);
-                        command.Parameters.AddWithValue("@RefreshToken", userRefreshTokenRequest.RefreshToken);
-                        command.Parameters.AddWithValue("@RefreshTokenExpiry", userRefreshTokenRequest.RefreshTokenExpiry);
-
-                        command.ExecuteNonQuery();
-                    }
-
-                    connection.Close();
-                }
-            }
-            catch (Exception)
-            {
-
-            }
-        }
+      
 
     }
 }

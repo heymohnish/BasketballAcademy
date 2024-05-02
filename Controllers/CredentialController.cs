@@ -15,7 +15,7 @@ namespace BasketballAcademy.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CredentialController : RepositoryApiControllerBase<CredentialsRepository>
+    public class CredentialController : RepositoryApiControllerBase<CredentialsRepository>,ICredentialController
     {
         private readonly CredentialsRepository _credentialsRepository;
         private readonly IConfiguration _configuration;
@@ -26,11 +26,6 @@ namespace BasketballAcademy.Controllers
                 _configuration= configuration;
         }
 
-        /// <summary>
-        /// Handles user sign-in.
-        /// </summary>
-        /// <param name="credentials">Credentials object containing user login information.</param>
-        /// <returns>Action result with user role, name, and ID if sign-in is successful; otherwise, returns an error message.</returns>
         [HttpPost("signin")]
         public async Task<IActionResult> Signin(Credentials credentials)
         {
@@ -46,11 +41,6 @@ namespace BasketballAcademy.Controllers
     }
 
 
-        /// <summary>
-        /// Handles the password change request.
-        /// </summary>
-        /// <param name="forget">Forget object containing user information for password change.</param>
-        /// <returns>1 if password changed successfully, 0 if an error occurs.</returns>
         [HttpPost("ChangePassword")]
         public async Task<IActionResult> ForgotPassword(Forget forget)
         {
@@ -66,3 +56,4 @@ namespace BasketballAcademy.Controllers
         }
         }
 }
+    
