@@ -10,7 +10,7 @@ namespace BasketballAcademy.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class EventController : RepositoryApiControllerBase<EventRepository>,IEventController
+    public class EventController : RepositoryApiControllerBase<EventRepository>
     {
         private readonly EventRepository _eventRepository;
         private readonly IConfiguration _configuration;

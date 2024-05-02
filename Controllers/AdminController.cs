@@ -11,7 +11,7 @@ namespace BasketballAcademy.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class AdminController : RepositoryApiControllerBase<AdminRepository>,IAdminController
+    public class AdminController : RepositoryApiControllerBase<AdminRepository>
     {
         private readonly AdminRepository _admin_repository;
         private readonly IConfiguration _configuration;

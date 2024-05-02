@@ -11,7 +11,7 @@ namespace BasketballAcademy.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class CoachController : RepositoryApiControllerBase<CoachRepository>,ICoachController
+    public class CoachController : RepositoryApiControllerBase<CoachRepository>
     {
 
 

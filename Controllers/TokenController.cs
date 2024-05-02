@@ -13,6 +13,7 @@ namespace BasketballAcademy.Controllers
     {
         private readonly JWTSettings _jWTSettings;
         private readonly ITokenService _tokenService;
+
         public TokenController(JWTSettings jWTSettings, ITokenService tokenService)
         {
             _jWTSettings = jWTSettings;

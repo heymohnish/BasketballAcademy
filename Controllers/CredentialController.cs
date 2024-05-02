@@ -15,7 +15,7 @@ namespace BasketballAcademy.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CredentialController : RepositoryApiControllerBase<CredentialsRepository>,ICredentialController
+    public class CredentialController : RepositoryApiControllerBase<CredentialsRepository>
     {
         private readonly CredentialsRepository _credentialsRepository;
         private readonly IConfiguration _configuration;

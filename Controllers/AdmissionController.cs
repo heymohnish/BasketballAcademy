@@ -10,7 +10,7 @@ namespace BasketballAcademy.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class AdmissionController : RepositoryApiControllerBase<AdmissionRepository>,IAdmissionController
+    public class AdmissionController : RepositoryApiControllerBase<AdmissionRepository>
     {
         private readonly AdmissionRepository _admissionRepository;
         private readonly IConfiguration _configuration;
