@@ -39,7 +39,7 @@ namespace BasketballAcademy.Controllers
             if (result != null)
             {
                 var token = _tokenService.CreateToken();
-                var response = new { Result = result, Token = token }; 
+                var response = new { result, token }; 
                 return ApiOkResponse(response);
             }
 

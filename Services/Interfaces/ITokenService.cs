@@ -7,7 +7,7 @@ namespace BasketballAcademy.Services.Interfaces
     public interface ITokenService
     {
 
-        public TokenResponseDto CreateToken();
+        public string CreateToken();
 
     }
 }
