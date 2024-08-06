@@ -15,7 +15,7 @@ pipeline {
                     bat "dotnet restore"
 
                     // Building the application
-                    bat "dotnet build --configuration Release"
+                    bat "dotnet build --configuration Debug"
                 }
             }
         }
@@ -24,7 +24,7 @@ pipeline {
             steps {
                 script {
                     // Running tests
-                    bat "dotnet test --no-restore --configuration Release"
+                    bat "dotnet test --no-restore --configuration Debug"
                 }
             }
         }
@@ -33,7 +33,7 @@ pipeline {
             steps {
                 script {
                     // Publishing the application
-                    bat "dotnet publish --no-restore --configuration Release --output .\\publish"
+                    bat "dotnet publish --no-restore --configuration Debug --output .\\publish"
                 }
             }
         }
