@@ -15,7 +15,7 @@ pipeline {
                     bat "dotnet restore"
 
                     // Building the application
-                    bat "dotnet build --configuration Debug"
+                    bat "dotnet build --configuration Debug" 
                 }
             }
         }
