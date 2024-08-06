@@ -37,11 +37,11 @@ pipeline {
                 }
             }
         }
+        
         stage('Deploy') {
             steps {
                 script {
-                 echo 'Deploy project'
-                }
+                    echo 'Deploy project'
                 }
             }
         }
