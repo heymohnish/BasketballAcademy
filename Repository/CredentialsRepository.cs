@@ -1,79 +1,59 @@
 ﻿using BasketballAcademy.Model;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Data;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using BasketballAcademy.Repository.Base;
+using BasketballAcademy.Repository.Interface;
+using System.Reflection.Metadata;
 
 namespace BasketballAcademy.Repository
 {
-    public class CredentialsRepository : Connection
+    public class CredentialsRepository : RepositoryBase
     {
-        protected readonly IConfiguration Configuration;
-        public CredentialsRepository(IConfiguration configuration) : base(configuration)
+       
+        public CredentialsRepository(string conncetion) : base(conncetion)
         {
-            this.Configuration = configuration;
+            
         }
 
 
-        public bool Signin(Credentials credentials, out int result, out int id, out string name, out string email)
+        public async Task<LoginResponse> Signin(Credentials credentials)
         {
-            try
+
+            var dataMapper = new IDataMapper<LoginResponse>();
+            await ExecuteSP("sp_ValidateUser", async p =>
             {
-                    OpenConnection();
-                    SqlCommand cmd = new SqlCommand("sp_ValidateUser", SqlConnection);                
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@username", credentials.Username);
-                    cmd.Parameters.AddWithValue("@password", Encrypt(credentials.Password));
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            result = (int)reader["role"];
-                            id = (int)reader["ID"];
-                            name = (string)reader["fullName"];
-                            email = (string)reader["email"];
-                            return true;
-                        }
-                        else
-                        {
-                            result = 5;
-                            id = 0;
-                            name = "@#$";
-                            email = "wfcw";
-                            return false;
-                        }
-                    }
-                
-            }
-            finally
-            {
-                CloseConnection();
-            }
+                p.AddWithValue("username", credentials.Username);
+                p.AddWithValue("password", Encrypt(credentials.Password));
+              
+            },dataMapper);
+          return dataMapper.Data;
         }
 
-        public bool Forgot(Forget forget)
+        public async Task<string> Forgot(Forget forget)
         {
-            try
+            string message = null;
+            SqlParameter outputParameter = new SqlParameter("@message", SqlDbType.NVarChar, 1000);
+            outputParameter.Direction = ParameterDirection.Output;
+
+            await ExecuteSP("[dbo].[sp_ForgotPassword]", (SqlParameterCollection parameters) =>
             {
-                OpenConnection();
-                SqlCommand cmd = new SqlCommand("sp_ForgotPassword", SqlConnection);
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@username", forget.Username);
-                    cmd.Parameters.AddWithValue("@password", Encrypt(forget.Password));
-                    cmd.Parameters.AddWithValue("@email", forget.Email);
-                    int rowsAffected = cmd.ExecuteNonQuery();
-                    return rowsAffected >= 1;
-            }
-            finally
-            {
-                CloseConnection();
-            }
+                parameters.AddWithValue("@email", forget.Email);
+                parameters.AddWithValue("@username", forget.Username);
+                parameters.AddWithValue("@password", Encrypt(forget.Password));
+                parameters.Add(outputParameter);
+
+            });
+
+            message = outputParameter.Value.ToString();
+            return message;
         }
 
-        private string Encrypt(string plaintext)
+            private string Encrypt(string plaintext)
         {
             string encryptionKey = "MAKV2SPBNI99212";
             using (Aes encryptor = Aes.Create())

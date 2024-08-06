@@ -1,158 +1,69 @@
-﻿using BasketballAcademy.Model;
+﻿ using BasketballAcademy.Controllers.Base;
+using BasketballAcademy.Model;
 using BasketballAcademy.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+
 
 namespace BasketballAcademy.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class AdminController : ControllerBase
+    public class AdminController : RepositoryApiControllerBase<AdminRepository>
     {
-        private readonly AdminRepository Repository;
+        private readonly AdminRepository _admin_repository;
+        private readonly IConfiguration _configuration;
 
-        public AdminController(IConfiguration configuration)
+        public AdminController(IConfiguration configuration, AdminRepository adminRepository) : base(adminRepository)
         {
-            Repository = new AdminRepository(configuration);
+            _admin_repository = adminRepository;
+            _configuration = configuration;
+        }
+
+        [HttpGet("ViewAdmin")]
+        public async Task<IActionResult> ViewAdmin()
+        {
+               return ApiOkResponse(await _admin_repository.ViewAdmin());
         }
 
 
-        string name;
-        /// <summary>
-        /// Retrieves a list of all administrators.
-        /// </summary>
-        /// <returns>List of Admin objects representing administrators.</returns>
-        [HttpGet]
-        [Route("ViewAdmin")]
-        public List<Admin> ViewAdmin()
+        [HttpPost("AddAdmin")]
+        public async Task<IActionResult> AddAdmin(Admin admin)
         {
-            try
-            {
-                List<Admin> admins = Repository.ViewAdmin();
-                return admins;
-            }
-            catch (Exception exception)
-            {
-                logger.LogError(exception);
-                return new List<Admin>();
-            }
+            string message = await _admin_repository.AddAdmin(admin);
+            var result = new { messgae=message};
+            return ApiOkResponse(result);
+        }
+       
+        
+        [HttpDelete("DeleteAdmin")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            return ApiOkResponse(await _admin_repository.DeleteAdmin(id));
         }
 
-        /// <summary>
-        /// Adds a new administrator.
-        /// </summary>
-        /// <param name="admin">Admin object containing information about the new administrator.</param>
-        /// <returns>1 if the administrator is added successfully, 0 if the administrator already exists, -1 if an error occurs.</returns>
-        [HttpPost]
-        [Route("AddAdmin")]
-        public int AddAdmin(Admin admin)
-        {
-            try
-            {
-                name = admin.fullName;
-                logger.LogInfo("New admin " + name + " added", name);
-                bool result = Repository.AddAdmin(admin);
-                if (result)
-                {
-                    return 1; 
-                }
-                else
-                {
-                    return 0;
-                }
-            }
-            catch (Exception exception)
-            {
-                logger.LogError(exception);
-                return -1; 
-            }
-        }
-
-        /// <summary>
-        /// Deletes an administrator by ID.
-        /// </summary>
-        /// <param name="id">ID of the administrator to be deleted.</param>
-        /// <returns>Success message if the administrator is deleted, or an error message if an exception occurs.</returns>
-        [HttpDelete]
-        [Route("DeleteAdmin/{id}")]
-        public string Delete(int id)
-        {
-            try
-            {
-                Repository.DeleteAdmin(id);
-                return "Admin deleted successfully";
-            }
-            catch (Exception exception)
-            {
-                logger.LogError(exception);
-                return "Something went wrong";
-            }
-        }
-
-        /// <summary>
-        /// Receives feedback from a user.
-        /// </summary>
-        /// <param name="contact">Contact object containing feedback information.</param>
-        /// <returns>Success message if the feedback is sent successfully, or an error message if an exception occurs.</returns>
-        [HttpPost]
+        [HttpPost("Feedback")]
         [AllowAnonymous]
-        [Route("Feedback")]
-        public string Contact(Contact contact)
-        {
-            try
+        public async Task<IActionResult> Contact(Contact contact)
             {
-                name = contact.Name;
-                
-                logger.LogInfo(name + " gives feedback about academy", name);
-                Repository.Message(contact);
-                return "Message sent successfully";
-            }
-            catch (Exception exception)
-            {
-                logger.LogError(exception);
-                return "Something went wrong";
-            }
+                string message = await _admin_repository.Message(contact);
+                var result = new { messgae = message };
+                return ApiOkResponse(result);
         }
 
-        /// <summary>
-        /// Retrieves a list of feedback messages.
-        /// </summary>
-        /// <returns>List of Contact objects representing feedback messages.</returns>
-        [HttpGet]
-        [Route("ViewMessage")]
-        public List<Contact> ViewMessage()
-        {
-            try
+        [HttpGet("ViewMessage")]
+        public async Task<IActionResult> ViewMessage()
             {
-                List<Contact> messages = Repository.ViewMessage();
-                return messages;
-            }
-            catch (Exception exception)
-            {
-                logger.LogError(exception);
-                return new List<Contact>();
-            }
+              return ApiOkResponse(await _admin_repository.ViewMessage());
         }
 
-        /// <summary>
-        /// Deletes a feedback message by ID.
-        /// </summary>
-        /// <param name="id">ID of the feedback message to be deleted.</param>
-        /// <returns>Success message if the feedback message is deleted, or an error message if an exception occurs.</returns>
-        [HttpDelete]
-        [Route("DeleteMessage/{id}")]
-        public string DeleteMessage(int id)
-        {
-            try
+        
+        [HttpDelete("DeleteMessage")]
+        public async Task<IActionResult> DeleteMessage(int id)
             {
-                Repository.DeleteMessage(id);
-                return "Message deleted successfully";
-            }
-            catch (Exception exception)
-            {
-                logger.LogError(exception);
-                return "Something went wrong";
-            }
+            return ApiOkResponse(await _admin_repository.DeleteMessage(id));
         }
     }
 }

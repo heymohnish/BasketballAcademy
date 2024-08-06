@@ -1,217 +1,101 @@
 ﻿using BasketballAcademy.Model;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using System.Data;
 using System.Security.Cryptography;
 using System.Text;
+using BasketballAcademy.Repository.Base;
+using BasketballAcademy.Repository.Interface;
+using Microsoft.AspNetCore.Mvc;
+using System.Reflection.Metadata;
+using BasketballAcademy.Services;
 
 namespace BasketballAcademy.Repository
 {
-    public class AdminRepository:Connection
+    public class AdminRepository : RepositoryBase
     {
-        protected readonly IConfiguration Configuration;
-        public AdminRepository(IConfiguration configuration) : base(configuration)
+        public AdminRepository(string connectionStrings) : base(connectionStrings)
         {
-            this.Configuration = configuration;
+            
+        }
+         public async Task<string> AddAdmin(Admin admin)
+        {
+            string message = null;
+            SqlParameter outputParameter = new SqlParameter("@message", SqlDbType.NVarChar, 1000);
+            outputParameter.Direction = ParameterDirection.Output;
+
+            await ExecuteSP("[dbo].[sp_AddAdmin]", (SqlParameterCollection parameters) =>
+                {
+                parameters.AddWithValue("@fullName", admin.fullName);
+                parameters.AddWithValue("@email", admin.email);
+                parameters.AddWithValue("@username", admin.username);
+                parameters.AddWithValue("@password", Encrypt(admin.password));
+                parameters.Add(outputParameter);
+            
+            });
+
+            message = outputParameter.Value.ToString();
+            return message;
         }
 
-        /// <summary>
-        /// Adds a new admin to the system.
-        /// </summary>
-        /// <param name="admin">The Admin object to be added.</param>
-        /// <returns>True if the admin is added successfully, false if the username already exists.</returns>
-        public bool AddAdmin(Admin admin)
+
+
+        public async Task<IEnumerable<Admin>> ViewAdmin()
         {
-            try
+                var dataMapper = new CollectionDataMapper<Admin>();
+                await ExecuteSP("[dbo].[sp_viewAdmin]", (SqlParameterCollection parameters) =>
                 {
-                    OpenConnection();
-                    using (SqlCommand checkCmd = new SqlCommand("sp_CheckExistingByUsername", SqlConnection))
+                }, dataMapper);
+            
+                var admins = dataMapper.Data;
+                return admins;
+        }
+
+
+        public async Task<string> DeleteAdmin(int id)
+        {
+            await ExecuteSP("sp_removeAdmin", (SqlParameterCollection parameters) =>
+                {
+                parameters.AddWithValue("@ID", id);
+            });
+            
+            return "Deleted";
+        }
+
+
+        public async Task<string> Message(Contact contact)
+        {
+            await ExecuteSP("[dbo].[sp_EnterMessage]", (SqlParameterCollection parameters) =>
+                {
+                parameters.AddWithValue("@Name", contact.Name);
+                parameters.AddWithValue("@Email", contact.Email);
+                parameters.AddWithValue("@Phone", contact.Phone);
+                parameters.AddWithValue("@Message", contact.Message);
+
+            });
+
+            return "message sent successfully";
+        }
+            
+           public async Task<IEnumerable<Contact>> ViewMessage()
+           {
+                var dataMapper = new CollectionDataMapper<Contact>();
+                await ExecuteSP("[dbo].[sp_ViewMessage]", (SqlParameterCollection parameters) =>
                     {
-                        checkCmd.CommandType = CommandType.StoredProcedure;
-                        checkCmd.Parameters.AddWithValue("@username", admin.email);
-                        int userCount = (int)checkCmd.ExecuteScalar();
-                        if (userCount > 0)
-                        {
-                            return false; 
-                        }
-                    }
-                    using (SqlCommand cmd = new SqlCommand("sp_addAdmin", SqlConnection))
+                }, dataMapper);
+                var messages = dataMapper.Data;
+                return messages;
+            }
+            
+        public async Task<string> DeleteMessage(int id)
                     {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@fullName", admin.fullName);
-                        cmd.Parameters.AddWithValue("@username", admin.username);
-                        cmd.Parameters.AddWithValue("@email", admin.email);
-                        cmd.Parameters.AddWithValue("@role", 0);
-                        cmd.Parameters.AddWithValue("@password", Encrypt(admin.password));
-                        int rowsAffected = cmd.ExecuteNonQuery();
-                        return rowsAffected >= 1; 
-                    }
-                }
-                finally
+          await ExecuteSP("sp_DeleteMessage", (SqlParameterCollection parameters) =>
                 {
-                        CloseConnection();
-                }
-            
+                parameters.AddWithValue("ID", id);
+            });
+            return "Message Deleted";
         }
 
-        /// <summary>
-        /// Retrieves a list of all admins in the system.
-        /// </summary>
-        /// <returns>List of Admin objects representing all admins.</returns>
-        public List<Admin> ViewAdmin()
-        {
-                try
-                {
-                    OpenConnection();
-                    using (SqlCommand cmd = new SqlCommand("sp_viewAdmin", SqlConnection))
-                    {
-                        List<Admin> adminlist = new List<Admin>();
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@role", 0);
-                        SqlDataAdapter sd = new SqlDataAdapter(cmd);
-                        DataTable dt = new DataTable();
-                        sd.Fill(dt);
-                        foreach (DataRow dr in dt.Rows)
-                        {
-                            adminlist.Add(
-                                new Admin
-                                {
-                                    Id = Convert.ToInt32(dr["Id"]),
-                                    fullName = Convert.ToString(dr["fullName"]),
-                                    username = Convert.ToString(dr["username"]),
-                                    email = Convert.ToString(dr["email"]),
-                                });
-                        }
-                        return adminlist;
-                    }
-                }
-                finally
-                {
-                    CloseConnection() ;
-                }
-            
-        }
 
-        /// <summary>
-        /// Deletes an admin from the system.
-        /// </summary>
-        /// <param name="id">The ID of the admin to be deleted.</param>
-        /// <returns>The number of rows affected (should be 1 if deletion is successful).</returns>
-        public int DeleteAdmin(int id)
-        {
-                try
-                {
-                    OpenConnection();
-                    using (SqlCommand cmd = new SqlCommand("sp_removeAdmin", SqlConnection))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@Id", id);
-                        int rowsAffected = cmd.ExecuteNonQuery();
-                        return rowsAffected; 
-                    }
-                }
-                finally
-                {
-                CloseConnection();
-                }
-            
-        }
-
-        /// <summary>
-        /// Saves a message in the system.
-        /// </summary>
-        /// <param name="contact">The Contact object representing the message.</param>
-        /// <returns>True if the message is saved successfully.</returns>
-        public bool Message(Contact contact)
-        {
-                try
-                {
-                    OpenConnection();
-                    using (SqlCommand cmd = new SqlCommand("sp_EnterMessage", SqlConnection))
-                        {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@Name", contact.Name);
-                        cmd.Parameters.AddWithValue("@Email", contact.Email);
-                        cmd.Parameters.AddWithValue("@Phone", contact.Phone);
-                        cmd.Parameters.AddWithValue("@Message", contact.Message);
-                        int rowsAffected = cmd.ExecuteNonQuery();
-                        return rowsAffected >= 1; 
-                        }
-                }
-                finally
-                {
-                CloseConnection();
-                }
-            
-        }
-
-        /// <summary>
-        /// Retrieves a list of all messages in the system.
-        /// </summary>
-        /// <returns>List of Contact objects representing all messages.</returns>
-        public List<Contact> ViewMessage()
-        {
-                try
-                {
-                    OpenConnection();
-                    using (SqlCommand cmd = new SqlCommand("sp_ViewMessage", SqlConnection))
-                        {
-                        List<Contact> message = new List<Contact>();
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        SqlDataAdapter sd = new SqlDataAdapter(cmd);
-                        DataTable dt = new DataTable();
-                        sd.Fill(dt);
-                        foreach (DataRow dr in dt.Rows)
-                        {
-                            message.Add(
-                                new Contact
-                                {
-                                    Id = Convert.ToInt32(dr["ID"]),
-                                    Name = Convert.ToString(dr["Name"]),
-                                    Email = Convert.ToString(dr["Email"]),
-                                    Phone = Convert.ToString(dr["Phone"]),
-                                    Message = Convert.ToString(dr["Message"]),
-                                });
-                        }
-                        return message;
-                    }
-                }
-                finally
-                {
-                CloseConnection();
-                }
-            
-        }
-
-        /// <summary>
-        /// Deletes a message from the system.
-        /// </summary>
-        /// <param name="id">The ID of the message to be deleted.</param>
-        /// <returns>The number of rows affected (should be 1 if deletion is successful).</returns>
-        public int DeleteMessage(int id)
-        {
-               try
-                {
-                OpenConnection();
-                using (SqlCommand cmd = new SqlCommand("sp_DeleteMessage", SqlConnection))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@ID", id);
-                        int rowsAffected = cmd.ExecuteNonQuery();
-                        return rowsAffected; 
-                    }
-                }
-                finally
-                {
-                CloseConnection();
-                }
-            
-        }
-
-        /// <summary>
-        /// Encrypts the given plaintext using AES encryption.
-        /// </summary>
-        /// <param name="plaintext">The plaintext to be encrypted.</param>
-        /// <returns>The encrypted ciphertext.</returns>
         private string Encrypt(string plaintext)
         {
             string encryptionKey = "MAKV2SPBNI99212";
@@ -233,5 +117,6 @@ namespace BasketballAcademy.Repository
             }
             return plaintext;
         }
-    }
+
+     }
 }

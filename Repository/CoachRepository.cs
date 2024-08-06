@@ -1,171 +1,93 @@
 ﻿using BasketballAcademy.Model;
-using Microsoft.Data.SqlClient;
+using BasketballAcademy.Repository.Base;
+using System.Data.SqlClient;
 using System.Data;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using BasketballAcademy.Repository.Interface;
 
 namespace BasketballAcademy.Repository
 {
-    public class CoachRepository:Connection
+    public class CoachRepository : RepositoryBase
     {
-        protected readonly IConfiguration Configuration;
-        public CoachRepository(IConfiguration configuration) : base(configuration)
+
+        public CoachRepository(string connectionStrings) : base(connectionStrings)
         {
-            this.Configuration = configuration;
+
         }
 
-        /// <summary>
-        /// Registers a new coach in the system.
-        /// </summary>
-        /// <param name="admin">The Admin object containing coach information.</param>
-        /// <returns>
-        /// True if the coach is successfully registered; otherwise, false.
-        /// Returns false if a coach with the same email already exists.
-        /// </returns>
-
-        public bool RegisterCoach(Admin admin)
+        public async Task<string> RegisterCoach(Admin admin)
         {
-            try
+            string message = null;
+            SqlParameter outputParameter = new SqlParameter("@message", SqlDbType.NVarChar, 1000);
+            outputParameter.Direction = ParameterDirection.Output;
+
+
+            await ExecuteSP("[dbo].[sp_addCoach]", (SqlParameterCollection parameters) =>
             {
-                OpenConnection();
-                using (SqlCommand checkCmd = new SqlCommand("sp_CheckExistingByUsername", SqlConnection))
-                {
-                    checkCmd.CommandType = CommandType.StoredProcedure;
-                    checkCmd.Parameters.AddWithValue("@username", admin.email);
-                    int userCount = (int)checkCmd.ExecuteScalar();
-                    if (userCount > 0)
-                    {
-                        return false;
-                    }
-                }
-                using (SqlCommand cmd = new SqlCommand("sp_addCoach", SqlConnection))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@fullName", admin.fullName);
-                    cmd.Parameters.AddWithValue("@username", admin.username);
-                    cmd.Parameters.AddWithValue("@Email", admin.email);
-                    cmd.Parameters.AddWithValue("@role", 2);
-                    cmd.Parameters.AddWithValue("@Password", Encrypt(admin.password));
-                    int rowsAffected = cmd.ExecuteNonQuery();
-                    return rowsAffected >= 1;
-                }
-            }
-            finally
-            {
-                CloseConnection();
-            }
+                parameters.AddWithValue("@fullName", admin.fullName);
+                parameters.AddWithValue("@email", admin.email);
+                parameters.AddWithValue("@username", admin.username);
+                parameters.AddWithValue("@password", Encrypt(admin.password));
+                parameters.Add(outputParameter);
+            });
+            message = outputParameter.Value.ToString();
+            return message;
         }
 
-        /// <summary>
-        /// Deletes a coach with the specified ID from the database.
-        /// </summary>
-        /// <param name="Id">The ID of the coach to delete.</param>
-        /// <returns>The number of rows affected by the deletion.</returns>
-        public int DeleteCoach(int Id)
+        public async Task<string> DeleteCoach(int Id)
         {
-            try
+            string message = null;
+            SqlParameter outputParameter = new SqlParameter("@message", SqlDbType.NVarChar, 1000);
+            outputParameter.Direction = ParameterDirection.Output;
+
+            await ExecuteSP("[dbo].[sp_removeCoach]", (SqlParameterCollection parameters) =>
             {
-                OpenConnection();
-                using (SqlCommand cmd = new SqlCommand("sp_removeCoach", SqlConnection))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@Id", Id);
-                    int i = cmd.ExecuteNonQuery();
-                    return i;
-                }
-            }
-            finally
-            {
-                CloseConnection();
-            }
+                parameters.AddWithValue("@ID", Id);
+                parameters.Add(outputParameter);
+            });
+            message = outputParameter.Value.ToString();
+            return message;
         }
 
-
-
-        /// <summary>
-        /// Updates coach information in the database.
-        /// </summary>
-        /// <returns>True if the coach information was updated successfully; otherwise, false.</returns>
-        public bool UpdateCoach(Coach coach, int id)
+        public async Task<string> UpdateCoach(Coach coach)
         {
-            try
+            string message = null;
+            SqlParameter outputParameter = new SqlParameter("@message", SqlDbType.NVarChar, 1000);
+            outputParameter.Direction = ParameterDirection.Output;
+
+
+            await ExecuteSP("[dbo].[sp_updateCoach]", (SqlParameterCollection parameters) =>
             {
-                OpenConnection();
-                using (SqlCommand cmd = new SqlCommand("sp_updateCoach", SqlConnection))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@Id", id);
-                    cmd.Parameters.AddWithValue("@FullName", coach.FullName);
-                    cmd.Parameters.AddWithValue("@DateOfBirth", coach.DateOfBirth);
-                    cmd.Parameters.AddWithValue("@age", coach.Age);
-                    cmd.Parameters.AddWithValue("@Gender", coach.Gender);
-                    cmd.Parameters.AddWithValue("@Address", coach.Address);
-                    cmd.Parameters.AddWithValue("@PrimarySkill", coach.PrimarySkill);
-                    cmd.Parameters.AddWithValue("@Phone", coach.PhoneNumber);
-                    cmd.Parameters.AddWithValue("@Email", coach.Email);
-                    cmd.Parameters.AddWithValue("@Experience", coach.Experience);
-                    cmd.Parameters.AddWithValue("@photo", coach.photo);
-                    cmd.Parameters.AddWithValue("@idproof", coach.idproof);
-                    cmd.Parameters.AddWithValue("@CertificateProof", coach.CertificateProof);
-                    int rowsAffected = cmd.ExecuteNonQuery();
-                    return rowsAffected >= 1;
-                }
-            }
-            finally
-            {
-                CloseConnection();
-            }
-        
+                parameters.AddWithValue("@Id", coach.Id);
+                parameters.AddWithValue("@FullName", coach.FullName);
+                parameters.AddWithValue("@DateOfBirth", coach.DateOfBirth);
+                parameters.AddWithValue("@Gender", coach.Gender);
+                parameters.AddWithValue("@Address", coach.Address);
+                parameters.AddWithValue("@PrimarySkill", coach.PrimarySkill);
+                parameters.AddWithValue("@Phone", coach.PhoneNumber);
+                parameters.AddWithValue("@Email", coach.Email);
+                parameters.AddWithValue("@Experience", coach.Experience);
+                parameters.AddWithValue("@photo", coach.photo);
+                parameters.AddWithValue("@idproof", coach.idproof);
+                parameters.AddWithValue("@CertificateProof", coach.CertificateProof);
+                parameters.Add(outputParameter);
+            });
+            message = outputParameter.Value.ToString();
+            return message;
         }
 
-        /// <summary>
-        /// Retrieves a list of coaches from the database.
-        /// </summary>
-        /// <returns>A list of coach objects.</returns>
-        public List<Coach> ViewCoach()
+        public async Task<IEnumerable<Coach>> ViewCoach()
         {
-            List<Coach> Coachlist = new List<Coach>();
-                try
-                {
-                    OpenConnection();
-                    SqlCommand cmd = new SqlCommand("sp_viewCoach", SqlConnection);
-                        cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@role", 2);
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            Coachlist.Add(
-                                new Coach()
-                                {
-                                    Id = Convert.ToInt32(reader["id"]),
-                                    FullName = Convert.ToString(reader["fullName"]),
-                                    Email = Convert.ToString(reader["email"]),
-                                    DateOfBirth = (DateTime)reader["dateOfBirth"],
-                                    Age = Convert.ToInt32(reader["age"]),
-                                    Gender = Convert.ToString(reader["gender"]),
-                                    PhoneNumber = Convert.ToString(reader["phone"]),
-                                    Experience = Convert.ToInt32(reader["experience"]),
-                                    photo = (byte[])reader["photo"],
-                                    idproof = (byte[])reader["idproof"],
-                                    CertificateProof = (byte[])reader["CertificateProof"]
-                                });
-                        }
-                    }
-                }
-                finally
-                {
-                CloseConnection();
-            }
-            return Coachlist;
+            var dataMapper = new CollectionDataMapper<Coach>();
+            await ExecuteSP("sp_viewCoach", (SqlParameterCollection parameter) =>
+            {
+            }, dataMapper);
+            var coach = dataMapper.Data;
+            return coach;
         }
 
-        /// <summary>
-        /// Encrypts a plaintext string using AES encryption with a predefined encryption key.
-        /// </summary>
-        /// <param name="plaintext">The plaintext string to be encrypted.</param>
-        /// <returns>The encrypted string in base64 format.</returns>
         private string Encrypt(string plaintext)
         {
             string encryptionKey = "MAKV2SPBNI99212";
