@@ -6,6 +6,10 @@
     "iisExpress": {
       "applicationUrl": "http://localhost:62615",
       "sslPort": 44333
+    },
+      "iis": {
+      "applicationUrl": "https://demo.com/first_demo",
+      "sslPort": 0
     }
   },
   "profiles": {
@@ -26,6 +30,12 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
-    }
+    },
+    "IIS": {
+  "commandName": "IIS",
+  "ancmHostingModel": "InProcess",
+  "launchBrowser": false,
+  "launchUrl": "swagger"
+}
   }
 }
